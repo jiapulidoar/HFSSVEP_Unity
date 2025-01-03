@@ -102,23 +102,37 @@ public class OnlineAlphabet : MonoBehaviour
         }
     }
 
-    void getRandomCharacterPairs()
+    void getRandomCharacterPairs(int idx = 0)
     {
         var random = new Random();
         referencePair = similarCharacterPairs[random.Next(similarCharacterPairs.Count)];
         char referenceChar = referencePair[0];
         char fillerChar = referencePair[1];
 
+        int referenceCount = random.Next(4, 9);
+        int result; 
+
         for (var i = 0; i < stimulis.Length; i++)
         {
-            int referenceCount = random.Next(5, 13);
-            var charArray = new char[95];
+            if (i == idx)
+            {
+                result = referenceCount;
+            }
+            else
+            {
+                do
+                {
+                    result = random.Next(4, 12);
+                } while (result == referenceCount);
+            }
+            
+            var charArray = new char[85];
 
-            for (int j = 0; j < referenceCount; j++)
+            for (int j = 0; j < result; j++)
             {
                 charArray[j] = referenceChar;
             }
-            for (int j = referenceCount; j < 95; j++)
+            for (int j = result; j < 85; j++)
             {
                 charArray[j] = fillerChar;
             }
@@ -132,7 +146,7 @@ public class OnlineAlphabet : MonoBehaviour
             TextMeshProUGUI textComponent = stimulis[i].GetComponentInChildren<TextMeshProUGUI>();
             textComponent.text = new string(charArray);
 
-            stimuliCount[i] = referenceCount;
+            stimuliCount[i] = result;
         }
     }
 
@@ -227,14 +241,14 @@ public class OnlineAlphabet : MonoBehaviour
 
     IEnumerator StimuliSequence(int idx, int sample)
     {
-        getRandomCharacterPairs();
+        getRandomCharacterPairs(idx);
         logger.writeLine("relax");
         myText.text = string.Format("Relax\n{0} / {1} Trial", sample + 1, numberSamples);
         yield return new WaitForSeconds(relax_t);
 
         BeepSound.Play();
         // # Instruction 
-        myText.text = $"Find {stimuliCount[idx]} occurrences of the letter {referencePair[0]}";//+ stimulis[idx].GetComponentInChildren<Text>().text;
+        myText.text = $"# {stimuliCount[idx]}";//+ stimulis[idx].GetComponentInChildren<Text>().text;
 
         //stimuli_reference.GetComponent<RawImage>().texture = stimulis[idx].GetComponent<RawImage>().texture;
 
